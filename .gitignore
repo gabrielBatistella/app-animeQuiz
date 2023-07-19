@@ -2,8 +2,6 @@
 node_modules
 /dist
 reference/
-/reference
-.reference
 
 # local env files
 .env.local
@@ -18,7 +16,7 @@ pnpm-debug.log*
 # Editor directories and files
 .idea
 .vscode
-.Mobile-Vue
+
 *.suo
 *.ntvs*
 *.njsproj
