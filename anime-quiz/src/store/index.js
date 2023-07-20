@@ -1,6 +1,10 @@
 import { store } from 'quasar/wrappers';
 import { createStore } from 'vuex';
 
+const PouchDB = require('pouchdb')
+
+// const PouchDB = require('pouchdb');
+
 // import example from './module-example'
 
 /*
@@ -14,8 +18,18 @@ import { createStore } from 'vuex';
 
 export default store((/* { ssrContext } */) => {
   const Store = createStore({
+    state: {
+      db: [],
+    },
+
     modules: {
       // example
+    },
+
+    actions: {
+      createdb({ state }) {
+        state.db = new PouchDB('my_database');
+      },
     },
 
     // enable strict mode (adds overhead!)
