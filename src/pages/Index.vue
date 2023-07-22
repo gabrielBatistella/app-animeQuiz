@@ -1,8 +1,8 @@
 <template>
   <q-page>
     <GameMode title='Sei Lá' />
-    <error></error>
-    <LoadingIcon></LoadingIcon>
+    <Error />
+    <LoadingIcon />
   </q-page>
 </template>
 

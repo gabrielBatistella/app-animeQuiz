@@ -2,8 +2,10 @@
   <q-card>
     <q-card-section>
       <div class="text-center">
-        <q-img :src="image_url">
-          <div class="absolute-bottom row justify-between items-start content-start items-center" v-if="animeOfTheDay">
+        <q-img :src="imageUrl">
+          <div
+          class="absolute-bottom row justify-between items-start content-start items-center"
+            v-if="animeOfTheDay">
             <div color="green" text-color="primary" class="row items-center">
               <q-btn class="items-center" color="green" icon="done" round>
                 <q-menu>
@@ -37,18 +39,18 @@
         </q-img>
       </div>
     </q-card-section>
-    <q-separator />
+    <q-separator/>
     <q-card-section class="text-center">
-      <div class="text-h3"> 
-        {{ title }} 
+      <div class="text-h3">
+        {{ title }}
       </div>
-      <div class="text-subtitle1"> 
-        {{ `${season} - ${year}` }} 
+      <div class="text-subtitle1">
+        {{ `${season} - ${year}` }}
       </div>
     </q-card-section>
     <q-card-section>
-      <p><span class="text-weight-bold"> Episodes: </span> 
-        {{ numberEpisodes }} 
+      <p><span class="text-weight-bold"> Episodes: </span>
+        {{ numberEpisodes }}
       </p>
       <p> <span class="text-weight-bold"> Studios: </span>
         <span v-for="studio in studios" :key="studio.mal_id"> {{ studio.name }} </span>
@@ -83,10 +85,10 @@ const props = defineProps({
     default() {
       return [];
     },
-  }
+  },
 });
 
-/* 
+/*
 title = anime.title;
 this.image_url = anime.images.jpg.large_image_url;
 this.year = anime.year;
@@ -96,36 +98,13 @@ this.numberEpisodes = anime.episodes;
 this.synopsis = anime.synopsis;
 this.studios = anime.studios; */
 
-const title = computed(() => {
-  return props.anime.title;
-});
-
-const image_url = computed(() => {
-  return props.anime.images.jpg.large_image_url;
-});
-
-const year = computed(() => {
-  return props.anime.year;
-});
-
-const trailer = computed(() => {
-  return props.anime.trailer.embed_url;
-});
-
-const season = computed(() => {
-  return props.anime.season;
-});
-
-const numberEpisodes = computed(() => {
-  return props.anime.episodes
-});
-
-const synopsis = computed(() => {
-  return props.anime.synopsis;
-});
-
-const studios = computed(() => {
-  return props.anime.studios;
-});
+const title = computed(() => props.anime.title);
+const imageUrl = computed(() => props.anime.images.jpg.large_image_url);
+const year = computed(() => props.anime.year);
+// const trailer = computed(() => props.anime.trailer.embed_url);
+const season = computed(() => props.anime.season);
+const numberEpisodes = computed(() => props.anime.episodes);
+const synopsis = computed(() => props.anime.synopsis);
+const studios = computed(() => props.anime.studios);
 
 </script>

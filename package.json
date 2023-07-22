@@ -12,8 +12,9 @@
     "build": "quasar build"
   },
   "dependencies": {
-    "@quasar/extras": "^1.0.0",
+    "@quasar/extras": "^1.16.5",
     "core-js": "^3.6.5",
+    "pinia": "^2.1.4",
     "pouchdb": "^8.0.1",
     "quasar": "^1.0.0"
   },

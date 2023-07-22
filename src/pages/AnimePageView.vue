@@ -1,19 +1,33 @@
 <template>
   <q-page>
-    <LoadingIcon v-if="loading" msg="Carregando anime..." />
-    <error v-else-if="error" />
-    <AnimeInfo v-else :anime="anime" />
+    <LoadingIcon v-if="true" msg="Carregando anime..." />
+    <Error v-else-if="error" />
+    <span v-else>
+      <AnimeInfo v-if="isAnimeOfTheDay"
+        :anime="anime"
+        :animeOfTheDay="isAnimeOfTheDay"
+        :winners="animeOfTheDay.winners"
+        :losers="animeOfTheDay.losers" />
+      <AnimeInfo v-else
+        :anime="anime"
+        :animeOfTheDay="isAnimeOfTheDay" />
+    </span>
+    <span v-if="false">
+      {{ `${likes} ${comments}` }}
+    </span>
   </q-page>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
+import { useStore } from 'src/store/dbStore';
 import { requestAnimeInfoById } from 'src/AnimeAPI';
-import { mapActions } from 'vuex';
-import { ref } from 'vue';
 
 import { LoadingIcon } from 'src/components/LoadingIcon';
 import { AnimeInfo } from 'src/components/AnimeInfo';
 import { Error } from 'src/components/Error';
+
+const store = useStore();
 
 // Control attributes:
 const loading = ref(true);
@@ -22,77 +36,82 @@ const error = ref(false);
 
 // Anime data:
 const id = ref(undefined);
-const anime = ref(undefined)
+const anime = ref(undefined);
 
 // Anime Interactive Data:
 const likes = ref([]);
 const comments = ref([]);
 
 // Fields Anime of the day:
-animeOfTheDay = ref(undefined),
+const animeOfTheDay = ref(undefined);
 
-// ...mapActions(['getAnimeData', 'assignActionOnAnimesChange', 'addNewAnime']);
+const {
+  tryRequestToAnimeAPI,
+  getAnimeOfTheDayInfo,
+  getAnimeData,
+  assignActionOnAnimesChange,
+} = store;
 
-function receivedAnimeInfo(anime) {
-  if (anime == null) {
-    throw 'Anime não encontrado!';
+function receivedAnimeInfo(_anime) {
+  if (_anime == null) {
+    throw String('Anime não encontrado!');
   }
-  anime.value = anime;
+  anime.value = _anime;
 }
 
-function receivedAnimeInteractiveData(anime) {
-  if (anime == null) {
-    likes = [];
-    comments = [];
+function receivedAnimeInteractiveData(_anime) {
+  if (_anime == null) {
+    likes.value = [];
+    comments.value = [];
   } else {
-    likes = anime.likes;
-    comments = anime.comments;
+    likes.value = _anime.likes;
+    comments.value = _anime.comments;
   }
 }
-function receivedAnimeOfTheDay(animeOfTheDay) {
-  if (id == animeOfTheDay.mal_id) {
-    isAnimeOfTheDay = true;
-    animeOfTheDay = animeOfTheDay;
-  }
-  else {
-    isAnimeOfTheDay = false;
+function receivedAnimeOfTheDay(_animeOfTheDay) {
+  if (id.value === _animeOfTheDay.mal_id) {
+    isAnimeOfTheDay.value = true;
+    animeOfTheDay.value = _animeOfTheDay;
+  } else {
+    isAnimeOfTheDay.value = false;
   }
 }
-function onUpdateAnimeInfo(anime) {
-  if (anime.id == 0) {
-    receivedAnimeOfTheDay(anime);
-  } if (anime.id == this.id) {
-    receivedAnimeInteractiveData(anime);
+function onUpdateAnimeInfo(_anime) {
+  if (_anime.id === 0) {
+    receivedAnimeOfTheDay(_anime);
+  } if (_anime.id === id.value) {
+    receivedAnimeInteractiveData(_anime);
   }
 }
 
 function fatalErro(msg) {
-  error=true;
-  console.log(`Erro: ${msg}`)
+  error.value = true;
+  console.log(`Erro: ${msg}`);
 }
 
 function init() {
-  loading = true;
-  id = this.$route.params.id;
+  loading.value = true;
+  id.value = this.$route.params.id;
 
-  const requestAnimePromise = requestAnimeInfoById(this.id)
+  const requestAnimePromise = tryRequestToAnimeAPI(true, requestAnimeInfoById, id.value)
     .then(receivedAnimeInfo)
-    .catch(() => { fatalErro('Erro ao procurar o anime!') });
+    .catch(() => { fatalErro('Erro ao procurar o anime!'); });
 
-  const requestAnimeInteractiveData = this.getAnimeData()
+  const requestAnimeInteractiveData = getAnimeData(id.value)
     .then(receivedAnimeInteractiveData)
-    .catch(() => { fatalErro('Erro ao receber dados interativos!') });
+    .catch(() => { fatalErro('Erro ao receber dados interativos!'); });
 
-  const requestAnimeOfTheDay = this.getAnimeOfTheDay()
+  const requestAnimeOfTheDay = getAnimeOfTheDayInfo()
     .then(receivedAnimeOfTheDay)
-    .catch(() => { fatalErro('Erro no anime do dia!') });
+    .catch(() => { fatalErro('Erro no anime do dia!'); });
 
   Promise.all([requestAnimePromise, requestAnimeInteractiveData, requestAnimeOfTheDay])
     .then(() => {
       assignActionOnAnimesChange(onUpdateAnimeInfo);
-      loading = false;
+      loading.value = false;
     });
 }
 
 onMounted(init);
+
 </script>
