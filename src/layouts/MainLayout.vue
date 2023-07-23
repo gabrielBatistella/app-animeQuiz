@@ -2,7 +2,7 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-toolbar-title v-if='teste'>
+        <q-toolbar-title>
           GoT (C)
         </q-toolbar-title>
       </q-toolbar>
@@ -18,10 +18,5 @@
 
 export default {
   name: 'MainLayout',
-  props: {
-    teste: {
-      type: Boolean,
-    },
-  },
 };
 </script>

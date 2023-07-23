@@ -1,15 +1,30 @@
 import MainLayout from 'layouts/MainLayout';
-import PageIndex from 'pages/Index.vue';
+import EmptyLayout from 'layouts/EmptyLayout';
+
+import LoginView from 'pages/LoginView';
+import MainMenuView from 'pages/MainMenuView';
 import AnimePageView from 'pages/AnimePageView';
 
 const routes = [
   {
-    path: '',
-    component: MainLayout,
-    props: { teste: true },
+    path: '/login',
+    component: EmptyLayout,
     children: [
-      { path: '', component: PageIndex },
-      { path: 'anime/:id', component: AnimePageView },
+      { path: '', component: LoginView },
+    ],
+  },
+  {
+    path: '/home',
+    component: MainLayout,
+    children: [
+      { path: '', component: MainMenuView },
+    ],
+  },
+  {
+    path: '/anime',
+    component: MainLayout,
+    children: [
+      { path: ':id', component: AnimePageView },
     ],
   },
 ];

@@ -35,39 +35,40 @@ function getRandomRank(maxRank) {
   return Math.floor(Math.random() * maxRank);
 }
 
-function waitTimeout(delay) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, delay);
-  });
-}
-
 const difficultyLevels = { easy: 200, medium: 1000, hard: 5000 };
 const timeBetweenRequests = 1500; // milliseconds
 
 export const useStore = defineStore('dbStore', {
   state: () => ({
-    user: {},
+    user: null,
     difficulty: 'medium',
 
     requestTimeControl: Date.now(),
 
     userDB,
     /*  USER_INFO -> {
-     *    _id (username)
+     *    _id (username) : String
      *    username : String
-     *    password? : String            --> backend
-     *    profilePic? : String (img)    --> backend
-     *    coverPic? : String (img)      --> backend
+     *    password : String             --> melhor com backend
+     *    profilePic? : String (img)    --> melhor com backend
+     *    coverPic? : String (img)      --> melhor com backend
      *    compStats : {numErros, numAcertos, mediaNumTentativas}
      *    casStats : {numErros, numAcertos, mediaNumTentativas}
      *    likes : [{animeID, animeName}]
      *    _rev
      *  }
+     *
+     *  LOGIN_LOCAL -> {
+     *    _id '_local/' : String
+     *    username : String
+     *    password : String
+     *    _rev
+     * }
      */
 
     animeDB,
     /*  ANIME_DATA -> {
-     *    _id (id >= 1)
+     *    _id (id >= 1) : String
      *    id : int (sempre >= 1)
      *    name : String
      *    likes : [username]
@@ -75,12 +76,12 @@ export const useStore = defineStore('dbStore', {
      *    _rev
      *  }
      *
-     *  ANIME DO DIA -> {
-     *    _id 0
+     *  ANIME_DO_DIA -> {
+     *    _id '0' : String
      *    id : int (sempre >= 1)
-     *    day : Date
-     *    acertos : [username]
-     *    erros : [username]
+     *    day : String
+     *    winners : [username]
+     *    losers : [username]
      *    _rev
      *  }
      */
@@ -144,6 +145,47 @@ export const useStore = defineStore('dbStore', {
         }, () => null);
     },
 
+    // MÉTODOS PARA REALIZAÇÃO DE TAREFAS ENVOLVENDO A PERMANÊNCIA DO LOGIN (MÉTODOS ASSÍNCRONOS)
+
+    isLoginOnMemory() {
+      return this.userDB.get('_local/')
+        .then(() => true, () => false);
+    },
+
+    setLoginOnMemory(login) {
+      return this.userDB.get('_local/')
+        .then((doc) => {
+          const newDoc = {
+            _id: '_local/',
+            /* eslint-disable-next-line no-underscore-dangle */
+            _rev: doc._rev,
+            ...login,
+          };
+          this.userDB.put(newDoc);
+        }, () => {
+          const doc = {
+            _id: '_local/',
+            ...login,
+          };
+          this.userDB.put(doc);
+        });
+    },
+
+    getLoginFromMemory() {
+      return this.userDB.get('_local/')
+        .then((doc) => {
+          const { _id, _rev, ...login } = doc;
+          return login;
+        }, () => null);
+    },
+
+    eraseLoginFromMemory() {
+      return this.userDB.get('_local/')
+        .then((doc) => {
+          this.userDB.remove(doc);
+        }, () => {});
+    },
+
     // MÉTODOS PARA REALIZAÇÃO DE TAREFAS ENVOLVENDO A BASE DE DADO DE ANIMES (MÉTODOS ASSÍNCRONOS)
 
     assignActionOnAnimesChange(action) {
@@ -159,18 +201,20 @@ export const useStore = defineStore('dbStore', {
 
     animeExists(animeID) {
       checkAnimeID(animeID);
-      return this.animeDB.get(animeID)
+      const id = animeID.toString();
+      return this.animeDB.get(id)
         .then(() => true, () => false);
     },
 
     addNewAnime(animeData) {
       checkAnimeID(animeData.id);
-      return this.animeDB.get(animeData.id)
+      const id = animeData.id.toString();
+      return this.animeDB.get(id)
         .then(() => {
           throw String('Anime already exists');
         }, () => {
           const doc = {
-            _id: animeData.id,
+            _id: id,
             ...animeData,
           };
           this.animeDB.put(doc);
@@ -179,7 +223,8 @@ export const useStore = defineStore('dbStore', {
 
     modifyAnimeData(animeID, animeDataModifier) {
       checkAnimeID(animeID);
-      return this.animeDB.get(animeID)
+      const id = animeID.toString();
+      return this.animeDB.get(id)
         .then((doc) => {
           const { _id: oldID, _rev: oldREV, ...oldAnimeData } = doc;
           const modifiedAnimeData = animeDataModifier(oldAnimeData);
@@ -197,7 +242,8 @@ export const useStore = defineStore('dbStore', {
 
     getAnimeData(animeID) {
       checkAnimeID(animeID);
-      return this.animeDB.get(animeID)
+      const id = animeID.toString();
+      return this.animeDB.get(id)
         .then((doc) => {
           const { _id, _rev, ...anime } = doc;
           return anime;
@@ -207,7 +253,7 @@ export const useStore = defineStore('dbStore', {
     // MÉTODOS PARA REALIZAÇÃO DE TAREFAS ENVOLVENDO O ANIME DO DIA (MÉTODOS ASSÍNCRONOS)
 
     isAnimeOfTheDayDefined() {
-      return this.animeDB.get(0)
+      return this.animeDB.get('0')
         .then((doc) => {
           const today = getCurrentDate();
           if (doc.day === today) {
@@ -218,7 +264,7 @@ export const useStore = defineStore('dbStore', {
     },
 
     defineAnimeOfTheDay() {
-      return this.animeDB.get(0)
+      return this.animeDB.get('0')
         .then((doc) => {
           const today = getCurrentDate();
           if (doc.day === today) {
@@ -227,7 +273,7 @@ export const useStore = defineStore('dbStore', {
             this.chooseAnimeOfTheDay(today)
               .then((animeInfo) => {
                 const newDoc = {
-                  _id: 0,
+                  _id: '0',
                   /* eslint-disable-next-line no-underscore-dangle */
                   _rev: doc._rev,
                   ...animeInfo,
@@ -242,7 +288,7 @@ export const useStore = defineStore('dbStore', {
           this.chooseAnimeOfTheDay(today)
             .then((animeInfo) => {
               const doc = {
-                _id: 0,
+                _id: '0',
                 ...animeInfo,
               };
               this.animeDB.put(doc);
@@ -268,11 +314,40 @@ export const useStore = defineStore('dbStore', {
     },
 
     getAnimeOfTheDayInfo() {
-      return this.animeDB.get(0)
+      return this.animeDB.get('0')
         .then((doc) => {
-          const { _id, _rev, ...anime } = doc;
-          return anime;
-        }, () => null);
+          const today = getCurrentDate();
+          if (doc.day === today) {
+            const { _id, _rev, ...animeInfo } = doc;
+            return animeInfo;
+          }
+          return this.chooseAnimeOfTheDay(today)
+            .then((animeInfo) => {
+              const newDoc = {
+                _id: '0',
+                /* eslint-disable-next-line no-underscore-dangle */
+                _rev: doc._rev,
+                ...animeInfo,
+              };
+              this.animeDB.put(newDoc);
+              return animeInfo;
+            }, () => {
+              throw String('Error fetching Anime of the Day from API');
+            });
+        }, () => {
+          const today = getCurrentDate();
+          return this.chooseAnimeOfTheDay(today)
+            .then((animeInfo) => {
+              const doc = {
+                _id: '0',
+                ...animeInfo,
+              };
+              this.animeDB.put(doc);
+              return animeInfo;
+            }, () => {
+              throw String('Error fetching Anime of the Day from API');
+            });
+        });
     },
 
     // MÉTODOS PARA REQUISIÇÃO PARA A API DE ANIMES (MÉTODOS ASSÍNCRONOS)
@@ -284,7 +359,7 @@ export const useStore = defineStore('dbStore', {
         return requestFunc(...requestArgs);
       }
       if (persistent) {
-        return waitTimeout(500)
+        return this.waitTimeout(500)
           .then(() => (this.tryRequestToAnimeAPI(persistent, requestFunc, ...requestArgs)));
       }
       return new Promise((resolve) => {
@@ -292,5 +367,10 @@ export const useStore = defineStore('dbStore', {
       });
     },
 
+    waitTimeout(delay) {
+      return new Promise((resolve) => {
+        setTimeout(resolve, delay);
+      });
+    },
   },
 });

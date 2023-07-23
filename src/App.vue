@@ -1,10 +1,21 @@
 <template>
   <div id="q-app">
     <router-view/>
-    asdasdasdasdasdasd
   </div>
 </template>
 
 <script setup>
+import { onMounted } from 'vue';
+import { useStore } from 'src/stores/dbStore';
 
+const store = useStore();
+const {
+  defineAnimeOfTheDay,
+} = store;
+
+onMounted(() => {
+  defineAnimeOfTheDay().catch((e) => {
+    console.log(e);
+  });
+});
 </script>

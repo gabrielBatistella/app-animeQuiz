@@ -1,16 +1,16 @@
 <template>
   <q-page>
-    <LoadingIcon v-if="true" msg="Carregando anime..." />
-    <Error v-else-if="error" />
+    <ErrorIcon v-if="error" />
+    <LoadingIcon v-else-if="loading" msg='Loading Anime info...' />
     <span v-else>
-      <AnimeInfo v-if="isAnimeOfTheDay"
+      <AnimeInfo v-if="isAnimeOfTheDay && alreadyPlayed"
         :anime="anime"
-        :animeOfTheDay="isAnimeOfTheDay"
+        :showExtras="true"
         :winners="animeOfTheDay.winners"
         :losers="animeOfTheDay.losers" />
       <AnimeInfo v-else
         :anime="anime"
-        :animeOfTheDay="isAnimeOfTheDay" />
+        :showExtras="false" />
     </span>
     <span v-if="false">
       {{ `${likes} ${comments}` }}
@@ -20,19 +20,24 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useStore } from 'src/store/dbStore';
+import { useRoute, useRouter } from 'vue-router';
+import { useStore } from 'src/stores/dbStore';
+import { storeToRefs } from 'pinia';
 import { requestAnimeInfoById } from 'src/AnimeAPI';
 
-import { LoadingIcon } from 'src/components/LoadingIcon';
-import { AnimeInfo } from 'src/components/AnimeInfo';
-import { Error } from 'src/components/Error';
+import LoadingIcon from 'src/components/LoadingIcon';
+import AnimeInfo from 'src/components/AnimeInfo';
+import ErrorIcon from 'src/components/ErrorIcon';
 
+const route = useRoute();
+const router = useRouter();
 const store = useStore();
 
 // Control attributes:
 const loading = ref(true);
-const isAnimeOfTheDay = ref(false);
 const error = ref(false);
+const isAnimeOfTheDay = ref(false);
+const alreadyPlayed = ref(false);
 
 // Anime data:
 const id = ref(undefined);
@@ -45,10 +50,13 @@ const comments = ref([]);
 // Fields Anime of the day:
 const animeOfTheDay = ref(undefined);
 
+// Store attributes and methods:
+const { user } = storeToRefs(store);
 const {
   tryRequestToAnimeAPI,
   getAnimeOfTheDayInfo,
   getAnimeData,
+  assignActionOnUsersChange,
   assignActionOnAnimesChange,
 } = store;
 
@@ -68,19 +76,30 @@ function receivedAnimeInteractiveData(_anime) {
     comments.value = _anime.comments;
   }
 }
+
 function receivedAnimeOfTheDay(_animeOfTheDay) {
-  if (id.value === _animeOfTheDay.mal_id) {
+  if (id.value === _animeOfTheDay.id) {
     isAnimeOfTheDay.value = true;
     animeOfTheDay.value = _animeOfTheDay;
+
+    const allPlayersToday = _animeOfTheDay.winners.concat(_animeOfTheDay.losers);
+    if (allPlayersToday.includes(user.value)) {
+      alreadyPlayed.value = true;
+    } else {
+      alreadyPlayed.value = false;
+    }
   } else {
     isAnimeOfTheDay.value = false;
   }
 }
+
 function onUpdateAnimeInfo(_anime) {
-  if (_anime.id === 0) {
-    receivedAnimeOfTheDay(_anime);
-  } if (_anime.id === id.value) {
+  if (_anime.id === id.value) {
     receivedAnimeInteractiveData(_anime);
+
+    if (_anime.id === animeOfTheDay.value.id) {
+      receivedAnimeOfTheDay(_anime);
+    }
   }
 }
 
@@ -91,7 +110,12 @@ function fatalErro(msg) {
 
 function init() {
   loading.value = true;
-  id.value = this.$route.params.id;
+  error.value = false;
+  if (user.value == null) {
+    router.push('/login');
+  }
+
+  id.value = parseInt(route.params.id, 10);
 
   const requestAnimePromise = tryRequestToAnimeAPI(true, requestAnimeInfoById, id.value)
     .then(receivedAnimeInfo)
@@ -107,6 +131,7 @@ function init() {
 
   Promise.all([requestAnimePromise, requestAnimeInteractiveData, requestAnimeOfTheDay])
     .then(() => {
+      assignActionOnUsersChange(() => {});
       assignActionOnAnimesChange(onUpdateAnimeInfo);
       loading.value = false;
     });

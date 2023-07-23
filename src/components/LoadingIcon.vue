@@ -1,28 +1,39 @@
 <template>
-  <div class="text-center">
+  <div class="text-center absolute-center">
     <q-circular-progress
       indeterminate
       :size="size"
-      color="primary"
+      :color="color"
       class="q-ma-md">
     </q-circular-progress>
-    <div>
-      {{ msg }}
+    <div class="text-center">
+      <span :class="`text-${textColor}`">{{ msg }}</span>
     </div>
   </div>
 </template>
 
 <script setup>
-import { defineProps } from 'vue';
 
 defineProps({
   msg: {
     type: String,
-    default: 'Loading page...',
+    default: 'Loading Page...',
   },
   size: {
     type: String,
-    default: '25vw',
+    default: '100px',
+  },
+  color: {
+    type: String,
+    default() {
+      return 'primary';
+    },
+  },
+  textColor: {
+    type: String,
+    default() {
+      return 'primary';
+    },
   },
 });
 

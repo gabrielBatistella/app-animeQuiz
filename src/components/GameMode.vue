@@ -1,8 +1,7 @@
 <template>
-  <q-card class='q-ma-md' width='auto'>
+  <q-card class='q-ma-md shadow-24' width='auto'>
     <q-img :src='background' class='fit'>
-      <q-carousel
-        class='fit no-padding'
+      <q-carousel class='fit no-padding'
         style='background-color:rgba(0, 255, 255, 0);'
         v-model='showingDescription'
         vertical
@@ -10,37 +9,38 @@
         transition-next='slide-up'
         animated>
         <q-carousel-slide name='title' class='fit no-padding'>
-          <q-img class='fit'>
+          <q-img class='fit cursor-pointer q-hoverable'
+            @click='$emit("enterGame")'
+            v-ripple>
             <div class='absolute-bottom text-h3 text-center'>
               {{ title }}
             </div>
-            <q-icon class='absolute-top-right q-ma-sm'
-              name='help'
-              @click='showingDescription = "description"'
-              v-ripple.center
-              color='dark'
-              size='xl'
-              style='opacity:0.75;' />
           </q-img>
+          <q-icon class='absolute-top-left q-ma-sm'
+            name='help'
+            @click='showingDescription = "description"'
+            color='dark'
+            size='xl'
+            style='opacity:0.75;' />
         </q-carousel-slide>
-        <q-carousel-slide name='description' class="fit no-padding">
+        <q-carousel-slide name='description' class='fit no-padding'>
           <q-img class='fit'>
-            <div class='fit'>
+            <div class='fit row wrap justify-center items-center content-center q-px-xl'>
               <span class='absolute-top q-mt-md text-h3 text-center'>
                 {{ title }}
               </span>
-              <span class='absolute-center text-h5 text-center'>
+              <span class='text-h5 text-center'>
                 {{ description }}
               </span>
-              <q-icon class='absolute-top-right q-ma-sm'
-                name='expand_more'
-                @click='showingDescription = "title"'
-                v-ripple.center
-                color='white'
-                size='xl'
-                style='opacity:0.75;' />
             </div>
           </q-img>
+          <q-icon class='absolute-top-left q-ma-sm'
+            name='expand_more'
+            @click='showingDescription = "title"'
+            v-ripple.center
+            color='white'
+            size='xl'
+            style='opacity:0.75;' />
         </q-carousel-slide>
       </q-carousel>
     </q-img>
@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps } from 'vue';
+import { ref } from 'vue';
 
 defineProps({
   title: {
@@ -67,6 +67,10 @@ defineProps({
       return '/test_image.jpg';
     },
   },
+});
+
+defineEmits({
+  enterGame: null,
 });
 
 const showingDescription = ref('title');
