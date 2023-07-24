@@ -1,13 +1,10 @@
 <template>
   <div class="text-center absolute-center">
-    <q-circular-progress
-      indeterminate
-      :size="size"
-      :color="color"
-      class="q-ma-md">
-    </q-circular-progress>
-    <div class="text-center">
-      <span :class="`text-${textColor}`">{{ msg }}</span>
+    <q-img width="300px" src="/error.gif" />
+    <div class="text-center q-mt-xl">
+      <span :class="`text-${textColor}`">
+        {{ msg }}
+      </span>
     </div>
   </div>
 </template>
@@ -17,22 +14,14 @@
 defineProps({
   msg: {
     type: String,
-    default: 'Loading Page...',
-  },
-  size: {
-    type: String,
-    default: '100px',
-  },
-  color: {
-    type: String,
     default() {
-      return 'primary';
+      return 'Loading Page...';
     },
   },
   textColor: {
     type: String,
     default() {
-      return 'primary';
+      return 'blue-10';
     },
   },
 });

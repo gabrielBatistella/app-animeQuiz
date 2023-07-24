@@ -49,11 +49,11 @@ export const useStore = defineStore('dbStore', {
     /*  USER_INFO -> {
      *    _id (username) : String
      *    username : String
-     *    password : String             --> melhor com backend
-     *    profilePic? : String (img)    --> melhor com backend
-     *    coverPic? : String (img)      --> melhor com backend
-     *    compStats : {numErros, numAcertos, mediaNumTentativas}
-     *    casStats : {numErros, numAcertos, mediaNumTentativas}
+     *    password : String                                       --> melhor com backend
+     *    profilePic? : String (img)                              --> melhor com backend
+     *    coverPic? : String (img)                                --> melhor com backend
+     *    compStats : {numWins, numLosses, numOfAttempts}
+     *    casStats : {numWins, numLosses, numOfAttempts}
      *    likes : [{animeID, animeName}]
      *    _rev
      *  }
@@ -72,7 +72,7 @@ export const useStore = defineStore('dbStore', {
      *    id : int (sempre >= 1)
      *    name : String
      *    likes : [username]
-     *    comments : [{username, comment}]
+     *    comments? : [{username, comment}]
      *    _rev
      *  }
      *
@@ -86,6 +86,14 @@ export const useStore = defineStore('dbStore', {
      *  }
      */
   }),
+
+  getters: {
+
+    randRankAtDifficulty() {
+      return getRandomRank(difficultyLevels[this.difficulty]);
+    },
+
+  },
 
   actions: {
 
@@ -140,8 +148,20 @@ export const useStore = defineStore('dbStore', {
     getUserInfo(username) {
       return this.userDB.get(username)
         .then((doc) => {
-          const { _id, _rev, ...user } = doc;
-          return user;
+          const { _id, _rev, ...userInfo } = doc;
+          return userInfo;
+        }, () => null);
+    },
+
+    getAllUsers() {
+      return this.userDB.allDocs({ include_docs: true })
+        .then((allDocs) => {
+          /* eslint-disable-next-line no-underscore-dangle */
+          const dataNoLocal = allDocs.rows.filter((data) => data.doc._id !== '_local/');
+          return dataNoLocal.map((data) => {
+            const { _id, _rev, ...user } = data.doc;
+            return user;
+          });
         }, () => null);
     },
 
@@ -245,8 +265,8 @@ export const useStore = defineStore('dbStore', {
       const id = animeID.toString();
       return this.animeDB.get(id)
         .then((doc) => {
-          const { _id, _rev, ...anime } = doc;
-          return anime;
+          const { _id, _rev, ...animeData } = doc;
+          return animeData;
         }, () => null);
     },
 
@@ -298,21 +318,6 @@ export const useStore = defineStore('dbStore', {
         });
     },
 
-    chooseAnimeOfTheDay(date) {
-      const randRankAtDifficulty = getRandomRank(difficultyLevels[this.difficulty]);
-      return this.tryRequestToAnimeAPI(true, requestAnimeInfoByRank, randRankAtDifficulty, 'tv')
-        .then((anime) => {
-          if (anime == null) throw String('Error fetching Anime of the Day from API');
-          const animeInfo = {
-            id: anime.mal_id,
-            day: date,
-            winners: [],
-            losers: [],
-          };
-          return animeInfo;
-        });
-    },
-
     getAnimeOfTheDayInfo() {
       return this.animeDB.get('0')
         .then((doc) => {
@@ -350,6 +355,70 @@ export const useStore = defineStore('dbStore', {
         });
     },
 
+    addPlayerToAnimeOfTheDayHistory(username, won) {
+      return this.animeDB.get('0')
+        .then((doc) => {
+          const today = getCurrentDate();
+          if (doc.day === today) {
+            if (won) {
+              doc.winners.push(username);
+            } else {
+              doc.losers.push(username);
+            }
+            this.animeDB.put(doc);
+          } else {
+            this.chooseAnimeOfTheDay(today)
+              .then((animeInfo) => {
+                const newDoc = {
+                  _id: '0',
+                  /* eslint-disable-next-line no-underscore-dangle */
+                  _rev: doc._rev,
+                  ...animeInfo,
+                };
+                if (won) {
+                  newDoc.winners.push(username);
+                } else {
+                  newDoc.losers.push(username);
+                }
+                this.animeDB.put(newDoc);
+              }, () => {
+                throw String('Error fetching Anime of the Day from API');
+              });
+          }
+        }, () => {
+          const today = getCurrentDate();
+          this.chooseAnimeOfTheDay(today)
+            .then((animeInfo) => {
+              const doc = {
+                _id: '0',
+                ...animeInfo,
+              };
+              if (won) {
+                doc.winners.push(username);
+              } else {
+                doc.losers.push(username);
+              }
+              this.animeDB.put(doc);
+            }, () => {
+              throw String('Error fetching Anime of the Day from API');
+            });
+        });
+    },
+
+    chooseAnimeOfTheDay(date) {
+      return this.tryRequestToAnimeAPI(true, requestAnimeInfoByRank, this.randRankAtDifficulty, 'tv')
+        .then((anime) => {
+          if (anime == null) throw String('Error fetching Anime of the Day from API');
+          const animeInfo = {
+            id: anime.mal_id,
+            day: date,
+            winners: [],
+            losers: [],
+          };
+          return animeInfo;
+        });
+    },
+
     // MÉTODOS PARA REQUISIÇÃO PARA A API DE ANIMES (MÉTODOS ASSÍNCRONOS)
 
     tryRequestToAnimeAPI(persistent, requestFunc, ...requestArgs) {
@@ -372,5 +441,6 @@ export const useStore = defineStore('dbStore', {
         setTimeout(resolve, delay);
       });
     },
+
   },
 });

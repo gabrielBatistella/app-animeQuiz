@@ -1,9 +1,13 @@
 <template>
-  <q-page class="bg-blue-10 fit">
-      <LoadingIcon v-if="loading" :msg="msgLoading" color="white" textColor="white"/>
-      <LoginBox v-else :msgError="msgError"
-      @loginEvent="login" @registerEvent="register"
-      @setNewError="(newError) => msgError = newError"/>
+  <q-page class="bg-blue-10 fullscreen">
+    <LoadingIcon v-if="loading"
+      :msg="msgLoading"
+      textColor="white" />
+    <LoginBox v-else
+      :msgError="msgError"
+      @loginEvent="login"
+      @registerEvent="register"
+      @setNewError="(newError) => (msgError = newError)" />
   </q-page>
 </template>
 
@@ -18,19 +22,25 @@ import LoginBox from 'src/components/LoginBox.vue';
 
 const router = useRouter();
 const store = useStore();
+
+// Control attributes:
+const loading = ref(true);
+const msgLoading = ref('Loading Anime Quiz...');
+const msgError = ref('');
+
+// Store attributes and methods:
 const { user } = storeToRefs(store);
 const {
+  waitTimeout,
   userExists,
   addNewUser,
   getUserInfo,
   setLoginOnMemory,
-  waitTimeout,
+  getLoginFromMemory,
+  eraseLoginFromMemory,
+  assignActionOnUsersChange,
+  assignActionOnAnimesChange,
 } = store;
-
-const loading = ref(true);
-
-const msgLoading = ref('Loading Anime Quiz...');
-const msgError = ref('');
 
 function login(username, password) {
   msgLoading.value = 'Logging in account..';
@@ -57,6 +67,7 @@ function login(username, password) {
       router.push('/home');
     })
     .catch((e) => {
+      eraseLoginFromMemory();
       msgError.value = e;
       loading.value = false;
     });
@@ -76,8 +87,8 @@ function register(username, password) {
         const userData = {
           username,
           password,
-          compStats: { numWrongs: 0, numRights: 0, meanAttemptsNumber: 0 },
-          casStats: { numWrongs: 0, numRights: 0, meanAttemptsNumber: 0 },
+          compStats: { numWins: 0, numLosses: 0, numOfAttempts: 0 },
+          casStats: { numWins: 0, numLosses: 0, numOfAttempts: 0 },
           likes: [],
         };
         const loginData = {
@@ -106,8 +117,34 @@ function register(username, password) {
 
 function init() {
   loading.value = true;
+  msgLoading.value = 'Checking for logged account...';
+  msgError.value = '';
 
-  loading.value = false;
+  if (user.value != null) {
+    router.push('/home');
+  }
+
+  assignActionOnUsersChange(() => {});
+  assignActionOnAnimesChange(() => {});
+
+  const defaultWait = waitTimeout(2000)
+    .then(() => {});
+
+  const operation = getLoginFromMemory();
+
+  Promise.all([defaultWait, operation])
+    .then((results) => {
+      const loginData = results[1];
+      if (loginData == null) {
+        loading.value = false;
+      } else {
+        login(loginData.username, loginData.password);
+      }
+    })
+    .catch((error) => {
+      msgError.value = error;
+      loading.value = false;
+    });
 }
 
 onMounted(init);

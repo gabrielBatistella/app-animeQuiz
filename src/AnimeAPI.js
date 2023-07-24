@@ -3,7 +3,7 @@ const URL_FIXED = 'https://api.jikan.moe/v4/';
 function requestAnimesWithName(animeName, numOfAnimes = null, mediaType = null) {
   const limitQuery = (numOfAnimes == null) ? '' : `&limit=${numOfAnimes}`;
   const typeQuery = (mediaType == null) ? '' : `&type=${mediaType}`;
-  const URL_OPTIONS = `anime?q=${animeName}&order_by=title${limitQuery}${typeQuery}`;
+  const URL_OPTIONS = `anime?q=${animeName}${limitQuery}${typeQuery}`;
   return fetch(`${URL_FIXED}${URL_OPTIONS}`)
     .then((response) => response.json())
     .then((response) => response.data)
@@ -22,7 +22,15 @@ function requestAnimeInfoByName(animeName) {
   return requestAnimesWithName(animeName)
     .then((data) => {
       if (data == null) return null;
-      return data.find((anime) => anime.title === animeName);
+      return data.find((anime) => {
+        let found = false;
+        anime.titles.forEach((title) => {
+          if (title.title.toLowerCase() === animeName.toLowerCase()) {
+            found = true;
+          }
+        });
+        return found;
+      });
     });
 }
 

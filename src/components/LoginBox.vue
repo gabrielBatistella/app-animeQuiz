@@ -1,12 +1,16 @@
 <template>
   <q-card class="absolute-center bg-blue-grey-10 text-white">
     <q-card-section class="text-center">
-      <span class="text-h5">Login/Register</span>
+      <span class="text-h5">
+        Login/Register
+      </span>
     </q-card-section>
     <q-card-section>
       <q-form class="q-gutter-md">
         <div>
-          <span class="text-h6">Username:</span>
+          <span class="text-h6">
+            Username:
+          </span>
           <q-input
             ref="usernameRef"
             dark
@@ -16,11 +20,12 @@
             v-model="username"
             :rules="usernameRules"
             lazy-rules
-            label="Username"
-          />
+            label="Username" />
         </div>
         <div>
-          <span class="text-h6">Password:</span>
+          <span class="text-h6">
+            Password:
+          </span>
           <q-input
             ref="passwordRef"
             dark
@@ -31,29 +36,31 @@
             label="Password"
             :type="isPwd ? 'password' : 'text'"
             :rules="passwordRules"
-            lazy-rules
-          >
+            lazy-rules>
             <template v-slot:append>
               <q-icon
                 :name="isPwd ? 'visibility_off' : 'visibility'"
                 class="cursor-pointer"
-                @click="isPwd = !isPwd"
-              />
+                @click="isPwd = !isPwd" />
             </template>
           </q-input>
         </div>
         <div v-if="msgError != ''" class="text-center">
-          <span class="text-red"> {{ msgError }} </span>
+          <span class="text-red">
+            {{ msgError }}
+          </span>
         </div>
         <div class="row wrap justify-around items-start content-start">
-          <q-btn label="Login" color="primary" @click="loginEmit()" />
+          <q-btn
+            label="Login"
+            color="blue-10"
+            @click="loginEmit()" />
           <q-btn
             label="Register"
-            color="primary"
+            color="blue-10"
             flat
             class="q-ml-sm"
-            @click="registerEmit()"
-          />
+            @click="registerEmit()" />
         </div>
       </q-form>
     </q-card-section>

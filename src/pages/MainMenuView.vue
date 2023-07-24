@@ -1,15 +1,13 @@
 <template>
   <q-page>
-    <LoadingIcon v-if="loading" msg='Loading Main Menu...' />
-    <OptionsMenu class='absolute-top-right q-ma-lg'
-      @clickUser='router.push(`/user/${user}`)'
-      @clickLeaderboards='router.push("/leaderboards")'
-      @clickLeave='logout()' />
-    <GameMode v-for='gameMode in gameModes'
-    :key='gameMode.title'
-    :title='gameMode.title'
-    :description='gameMode.description'
-    @enterGame='router.push(`${gameMode.path}`)' />
+    <LoadingIcon v-if="loading" msg="Loading Main Menu..." />
+    <span v-else>
+      <GameMode v-for="gameMode in gameModes"
+        :key="gameMode.title"
+        :title="gameMode.title"
+        :description="gameMode.description"
+        @enterGame="router.push(`${gameMode.path}`)" />
+    </span>
   </q-page>
 </template>
 
@@ -20,7 +18,6 @@ import { useStore } from 'src/stores/dbStore';
 import { storeToRefs } from 'pinia';
 
 import LoadingIcon from 'src/components/LoadingIcon';
-import OptionsMenu from 'src/components/OptionsMenu';
 import GameMode from 'src/components/GameMode';
 
 const router = useRouter();
@@ -38,7 +35,7 @@ const competitiveMode = ref({
               + 'and see how your abilities compare against other players on the leaderboard.\n'
               + 'Aim for the #1 spot!',
   background: '',
-  path: '/competitive',
+  path: '/play/competitive',
 });
 const casualMode = ref({
   title: 'Casual Mode',
@@ -47,15 +44,15 @@ const casualMode = ref({
               + 'Your scores won\'t be uploaded to the leaderboard, but you can still see them '
               + 'and compete with your friends.',
   background: '',
-  path: '/casual',
+  path: '/play/casual',
 });
 const competitiveClosed = ref({
-  title: 'Check out today\'s Anime',
+  title: 'Today\'s Anime',
   description: 'You have already played the competitive game of the day.\n'
               + 'If you are curious about how other players are doing in today\'s challenge, '
               + 'you can spy on their outcomes through the page of the Anime.',
   background: '',
-  path: '/competitive',
+  path: '/anime/', // ID added on init
 });
 const gameModes = computed(() => {
   if (alreadyPlayed.value) {
@@ -67,35 +64,31 @@ const gameModes = computed(() => {
 // Store attributes and methods:
 const { user } = storeToRefs(store);
 const {
-  eraseLoginFromMemory,
   getAnimeOfTheDayInfo,
   assignActionOnUsersChange,
   assignActionOnAnimesChange,
 } = store;
 
-function logout() {
-  eraseLoginFromMemory();
-  user.value = null;
-  router.push('/login');
-}
-
 function init() {
   loading.value = true;
+  alreadyPlayed.value = false;
+
   if (user.value == null) {
     router.push('/login');
   }
+
+  assignActionOnUsersChange(() => {});
+  assignActionOnAnimesChange(() => {});
 
   getAnimeOfTheDayInfo()
     .then((animeOfTheDay) => {
       const allPlayersToday = animeOfTheDay.winners.concat(animeOfTheDay.losers);
       if (allPlayersToday.includes(user.value)) {
         alreadyPlayed.value = true;
+        competitiveClosed.value.path += animeOfTheDay.id.toString();
       } else {
         alreadyPlayed.value = false;
       }
-
-      assignActionOnUsersChange(() => {});
-      assignActionOnAnimesChange(() => {});
       loading.value = false;
     });
 }
