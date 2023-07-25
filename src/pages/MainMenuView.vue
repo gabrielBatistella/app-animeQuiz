@@ -3,8 +3,11 @@
     <LoadingIcon v-if="loading" msg="Loading Main Menu..." />
     <span v-else>
       <div class="fit row wrap justify-center items-center content-center">
-        <q-responsive :ratio="2100/1313" class="col" style="max-width: 620px">
+        <q-responsive :ratio="2100/1313" class="col" style="max-width: 560px">
           <div>
+            <div class="text-center text-h3 text-bold q-mt-lg q-mb-md">
+              Choose a Game Mode:
+            </div>
             <GameMode v-for="gameMode in gameModes"
               :key="gameMode.title"
               :title="gameMode.title"
