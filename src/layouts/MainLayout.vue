@@ -9,7 +9,9 @@
           <OptionsMenu class="shadow-16"
             @clickMainMenu="router.push('/home')"
             @clickUser="router.push(`/user/${user}`)"
-            @clickLeaderboards="router.push('/leaderboard')"
+            @clickSearchAnime="router.push('/search/anime')"
+            @clickSearchUser="router.push('/search/user')"
+            @clickLeaderboard="router.push('/leaderboard')"
             @clickLeave="logout()" />
         </q-page-sticky>
       </q-toolbar>
@@ -22,7 +24,7 @@
 
     <q-footer elevated>
       <q-toolbar class="bg-blue-10 shadow-12">
-        <q-toolbar-title class="row text-caption q-mx-lg q-my-sm">
+        <q-toolbar-title class="row text-caption q-mx-md q-my-sm">
           <div class="col-6 text-left">
             Authors: <br>
             <span v-for="author in authors"
@@ -33,7 +35,7 @@
               <br>
             </span>
           </div>
-          <div class="col-6 text-right q-my-lg">
+          <div class="col-6 text-right q-my-md">
             Github:
             <a href="https://github.com/gabrielBatistella/app-animeQuiz" target="_blank" class="text-white">
               github

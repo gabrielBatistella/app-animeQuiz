@@ -1,6 +1,6 @@
 <template>
   <div class="text-center absolute-center">
-    <q-img width="300px" src="/error.gif" />
+    <q-img width="300px" src="/error2.gif" />
     <div class="text-center q-mt-xl">
       <span :class="`text-${textColor} text-h6`">
         {{ msg }}

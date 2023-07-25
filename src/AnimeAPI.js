@@ -10,6 +10,14 @@ function requestAnimesWithName(animeName, numOfAnimes = null, mediaType = null) 
     .catch(() => null);
 }
 
+function requestAnimeSearch(animeName, numOfAnimesOnPage = 10, page = 1) {
+  const URL_OPTIONS = `anime?q=${animeName}&limit=${numOfAnimesOnPage}&page=${page}`;
+  return fetch(`${URL_FIXED}${URL_OPTIONS}`)
+    .then((response) => response.json())
+    .then((response) => ({ data: response.data, numPages: response.pagination.last_visible_page }))
+    .catch(() => null);
+}
+
 function requestAnimeInfoById(animeID) {
   const URL_OPTIONS = `anime/${animeID}`;
   return fetch(`${URL_FIXED}${URL_OPTIONS}`)
@@ -45,6 +53,7 @@ function requestAnimeInfoByRank(rank = 1, mediaType = null) {
 
 export {
   requestAnimesWithName,
+  requestAnimeSearch,
   requestAnimeInfoById,
   requestAnimeInfoByName,
   requestAnimeInfoByRank,

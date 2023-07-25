@@ -1,5 +1,5 @@
 <template>
-  <q-card class="absolute-center bg-blue-grey-10 text-white">
+  <q-card class="bg-blue-grey-10 text-white">
     <q-card-section class="text-center">
       <span class="text-h5">
         Login/Register

@@ -2,7 +2,7 @@
   <q-dialog v-model="model" transition-show="scale" persistent>
     <q-card>
       <q-card-section class="text-center">
-        <q-img width="300px" src="/error.gif" />
+        <q-img width="300px" src="/loss.gif" />
       </q-card-section>
       <q-card-section>
         <div class="text-h3 text-center text-red q-my-md">

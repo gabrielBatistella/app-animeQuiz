@@ -8,6 +8,8 @@ import UserPageView from 'pages/UserPageView';
 import LeaderboardView from 'pages/LeaderboardView';
 import CompetitiveGameView from 'pages/CompetitiveGameView';
 import CasualGameView from 'pages/CasualGameView';
+import SearchAnimeView from 'pages/SearchAnimeView';
+import SearchUserView from 'pages/SearchUserView';
 
 const routes = [
   {
@@ -28,13 +30,24 @@ const routes = [
     path: '/anime',
     component: MainLayout,
     children: [
+      { path: '', redirect: '/login' },
       { path: ':id', component: AnimePageView },
+    ],
+  },
+  {
+    path: '/search',
+    component: MainLayout,
+    children: [
+      { path: '', redirect: '/login' },
+      { path: 'anime', component: SearchAnimeView },
+      { path: 'user', component: SearchUserView },
     ],
   },
   {
     path: '/user',
     component: MainLayout,
     children: [
+      { path: '', redirect: '/login' },
       { path: ':username', component: UserPageView },
     ],
   },
@@ -49,9 +62,14 @@ const routes = [
     path: '/play',
     component: MainLayout,
     children: [
+      { path: '', redirect: '/login' },
       { path: 'competitive', component: CompetitiveGameView },
       { path: 'casual', component: CasualGameView },
     ],
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/login',
   },
 ];
 

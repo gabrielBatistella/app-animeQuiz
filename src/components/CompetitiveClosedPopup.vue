@@ -7,7 +7,7 @@
         </div>
       </q-card-section>
       <q-card-section class="text-center">
-        <q-img width="100px" src="/error.gif" />
+        <q-img width="100px" src="/competitiveClosed.gif" />
       </q-card-section>
       <q-card-section class="q-px-lg">
         <div class="text-body2 text-center">

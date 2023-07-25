@@ -18,6 +18,12 @@ function checkAnimeModification(oldAnimeData, newAnimeData) {
       || newAnimeData.name !== oldAnimeData.name) throw String('Anime ID/name cant be modified');
 }
 
+function checkUsername(username) {
+  if (username.length < 3
+      || username.includes(' ')
+      || username.at(0) === '_') throw String('Invalid Username');
+}
+
 function checkAnimeID(animeID) {
   if (animeID < 0) throw String('Invalid ID');
   if (animeID === 0) throw String('To check Anime of the Day, use proper methods');
@@ -41,7 +47,7 @@ const timeBetweenRequests = 1500; // milliseconds
 export const useStore = defineStore('dbStore', {
   state: () => ({
     user: null,
-    difficulty: 'medium',
+    difficulty: 'easy',
 
     requestTimeControl: Date.now(),
 
@@ -87,14 +93,6 @@ export const useStore = defineStore('dbStore', {
      */
   }),
 
-  getters: {
-
-    randRankAtDifficulty() {
-      return getRandomRank(difficultyLevels[this.difficulty]);
-    },
-
-  },
-
   actions: {
 
     // MÉTODOS PARA REALIZAÇÃO DE TAREFAS ENVOLVENDO BASE DE DADO DE USUÁRIOS (MÉTODOS ASSÍNCRONOS)
@@ -111,11 +109,13 @@ export const useStore = defineStore('dbStore', {
     },
 
     userExists(username) {
+      checkUsername(username);
       return this.userDB.get(username)
         .then(() => true, () => false);
     },
 
     addNewUser(userInfo) {
+      checkUsername(userInfo.username);
       return this.userDB.get(userInfo.username)
         .then(() => {
           throw String('Username already exists');
@@ -129,6 +129,7 @@ export const useStore = defineStore('dbStore', {
     },
 
     modifyUserInfo(username, userInfoModifier) {
+      checkUsername(username);
       return this.userDB.get(username)
         .then((doc) => {
           const { _id: oldID, _rev: oldREV, ...oldUserInfo } = doc;
@@ -146,6 +147,7 @@ export const useStore = defineStore('dbStore', {
     },
 
     getUserInfo(username) {
+      checkUsername(username);
       return this.userDB.get(username)
         .then((doc) => {
           const { _id, _rev, ...userInfo } = doc;
@@ -406,7 +408,7 @@ export const useStore = defineStore('dbStore', {
     },
 
     chooseAnimeOfTheDay(date) {
-      return this.tryRequestToAnimeAPI(true, requestAnimeInfoByRank, this.randRankAtDifficulty, 'tv')
+      return this.tryRequestToAnimeAPI(true, requestAnimeInfoByRank, this.randRankAtDifficulty(), 'tv')
         .then((anime) => {
           if (anime == null) throw String('Error fetching Anime of the Day from API');
           const animeInfo = {
@@ -417,6 +419,10 @@ export const useStore = defineStore('dbStore', {
           };
           return animeInfo;
         });
+    },
+
+    randRankAtDifficulty() {
+      return getRandomRank(difficultyLevels[this.difficulty]);
     },
 
     // MÉTODOS PARA REQUISIÇÃO PARA A API DE ANIMES (MÉTODOS ASSÍNCRONOS)

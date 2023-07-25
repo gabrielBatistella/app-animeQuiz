@@ -1,6 +1,6 @@
 <template>
   <div class="text-center absolute-center">
-    <q-img width="300px" src="/error.gif" />
+    <q-img width="300px" src="/alreadyPlayed.gif" />
     <div class="text-center q-mt-xl">
       <span class="text-blue-10">
         Seems like you've already played the competitive match today!<br>

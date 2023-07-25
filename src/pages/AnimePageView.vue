@@ -63,9 +63,8 @@ const {
 } = store;
 
 function fatalError(msg) {
-  error.value = true;
   msgError.value = msg;
-  console.log(`ERROR: ${msg}`);
+  error.value = true;
 }
 
 function receivedAnimeInfo(_anime) {

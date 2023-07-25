@@ -1,7 +1,7 @@
 <template>
   <q-card class="no-border no-shadow">
     <q-card-section class="row justify-center items-center content-center">
-      <span class="text-h2 text-center">@ {{ userInfo.username }}</span>
+      <span class="text-h5 text-center text-bold">@ {{ userInfo.username }}</span>
     </q-card-section>
     <q-separator />
     <q-card-section class="row">

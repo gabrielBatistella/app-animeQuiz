@@ -2,7 +2,16 @@
   <q-card>
     <q-card-section>
       <div class="text-center">
-        <q-img :src="imageUrl">
+        <q-img :src="imageUrl" style="max-width: 400px;">
+          <div v-if="showExtras"
+          class="absolute-top row justify-center items-start content-start items-center">
+          <span v-if="winners.includes(user)" class="text-green text-h4">
+            You got this one right!
+          </span>
+          <span v-else-if="losers.includes(user)" class="text-red text-h4">
+            You let this one slip...
+          </span>
+          </div>
           <div
           class="absolute-bottom row justify-between items-start content-start items-center"
             v-if="showExtras">
@@ -18,13 +27,13 @@
                 </q-menu>
               </q-btn>
               <span class="text-green text-h6 q-ml-sm">
-                {{ `${winners.length} ${(winners.length > 1) ? 'winner' : 'winners'}` }}
+                {{ `${winners.length} ${(winners.length > 1) ? 'winners' : 'winner'}` }}
               </span>
             </div>
 
             <div color="green" text-color="primary" class="row items-center">
               <span class="text-red text-h6 q-mr-sm">
-                {{ `${losers.length} ${(losers.length > 1) ? 'loser' : 'losers'}` }}
+                {{ `${losers.length} ${(losers.length > 1) ? 'losers' : 'loser'}` }}
               </span>
               <q-btn class="items-center" color="red" icon="close" round>
                 <q-menu>
@@ -104,7 +113,13 @@
     <q-separator/>
     <q-card-section v-if="trailer != null && trailer != '' && trailer != undefined">
       <div align="left" class="text-h4 q-mb-md">Trailer: </div>
-      <q-video :src="trailer" ratio="1"/>
+      <div class="fit wrap justify-center items-center content-center" >
+        <div class="fit row wrap justify-center items-center content-center">
+        <q-responsive :ratio="16/9" class="col" style="max-width: 600px">
+          <q-video :src="trailer" :ratio="16/9"/>
+        </q-responsive>
+        </div>
+      </div>
     </q-card-section>
     <q-separator />
     <q-card-section>
@@ -259,31 +274,41 @@ function checkIfExistsAndCreateAnime(animeId, animeName) {
 }
 
 function sendComment() {
-  commentRef.value.validate();
-
-  if (commentRef.value.hasError) {
+  if (myComment.value === '') {
     return;
   }
 
   const animeId = props.anime.mal_id;
-  function changeAnimeComments(anime) {
-    const newComments = [...anime.comments];
-    const newComment = {
-      username: user.value,
-      comment: myComment.value,
-    };
-    newComments.push(newComment);
-    const animeLikes = [...anime.likes];
-    const newAnime = {
-      id: anime.id,
-      name: anime.name,
-      likes: animeLikes,
-      comments: newComments,
-    };
-    return newAnime;
-  }
-  modifyAnimeData(animeId, changeAnimeComments)
+  const animeTitle = props.anime.title;
+
+  checkIfExistsAndCreateAnime(animeId, animeTitle)
     .then(() => {
+      function changeAnimeComments(anime) {
+        const newComments = [...anime.comments];
+        const newComment = {
+          username: user.value,
+          comment: myComment.value,
+        };
+        newComments.push(newComment);
+        const animeLikes = [...anime.likes];
+        const newAnime = {
+          id: anime.id,
+          name: anime.name,
+          likes: animeLikes,
+          comments: newComments,
+        };
+        return newAnime;
+      }
+      modifyAnimeData(animeId, changeAnimeComments)
+        .then(() => {
+          commentRef.value.resetValidation();
+          myComment.value = '';
+        })
+        .catch(() => {
+          throw String('Something is wrong!');
+        });
+    })
+    .catch(() => {
       commentRef.value.resetValidation();
       myComment.value = '';
     });
@@ -340,47 +365,37 @@ function like() {
       modifyAnimeData(animeId, changeAnimeLikes);
       modifyUserInfo(user.value, addLikedAnime);
     })
-    .catch(() => {
-      console.log('Error has ocurred!');
-    });
+    .catch(() => {});
 }
 
 function dislike() {
   const animeId = props.anime.mal_id;
-  const animeTitle = props.title;
-
-  checkIfExistsAndCreateAnime(animeId, animeTitle)
-    .then(() => {
-      function changeAnimeLikes(anime) {
-        const newLikes = [...(anime.likes)]
-          .filter((_user) => _user !== user.value);
-        const animeComments = [...(anime.comments)];
-        const newAnime = {
-          id: anime.id,
-          name: anime.name,
-          likes: newLikes,
-          comments: animeComments,
-        };
-        return newAnime;
-      }
-      function removeLikedAnime(_user) {
-        const newLikes = [...(_user.likes)]
-          .filter((data) => data.animeID !== animeId);
-        const newUser = {
-          username: _user.username,
-          password: _user.password,
-          compStats: _user.compStats,
-          casStats: _user.casStats,
-          likes: newLikes,
-        };
-        return newUser;
-      }
-      modifyAnimeData(animeId, changeAnimeLikes);
-      modifyUserInfo(user.value, removeLikedAnime);
-    })
-    .catch(() => {
-      console.log('Error has ocurred!');
-    });
+  function changeAnimeLikes(anime) {
+    const newLikes = [...(anime.likes)]
+      .filter((_user) => _user !== user.value);
+    const animeComments = [...(anime.comments)];
+    const newAnime = {
+      id: anime.id,
+      name: anime.name,
+      likes: newLikes,
+      comments: animeComments,
+    };
+    return newAnime;
+  }
+  function removeLikedAnime(_user) {
+    const newLikes = [...(_user.likes)]
+      .filter((data) => data.animeID !== animeId);
+    const newUser = {
+      username: _user.username,
+      password: _user.password,
+      compStats: _user.compStats,
+      casStats: _user.casStats,
+      likes: newLikes,
+    };
+    return newUser;
+  }
+  modifyAnimeData(animeId, changeAnimeLikes);
+  modifyUserInfo(user.value, removeLikedAnime);
 }
 
 </script>

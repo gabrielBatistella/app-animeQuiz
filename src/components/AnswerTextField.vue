@@ -6,7 +6,7 @@
       :options="autocomplete"
       :label="msg"
       @input-value="updateAutocomplete"
-      standout="bg-grey-6 text-dark"
+      filled
       stack-label
       label-color="red"
       use-input
@@ -14,8 +14,17 @@
       fill-input
       behavior="menu"
       hide-dropdown-icon
-      input-debounce="0"
+      input-debounce="200"
       style="width: 60vw;">
+        <template v-slot:option="scope">
+          <q-item v-bind="scope.itemProps" style="width: 60vw;">
+            <q-item-section>
+              <q-item-label class="text-black">
+                {{ scope.opt }}
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </template>
         <template v-slot:no-option>
           <q-item>
             <q-item-section class="text-grey">

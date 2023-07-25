@@ -3,16 +3,23 @@
     <LoadingIcon v-if="loading"
       :msg="msgLoading"
       textColor="white" />
-    <LoginBox v-else
-      :msgError="msgError"
-      @loginEvent="login"
-      @registerEvent="register"
-      @setNewError="(newError) => (msgError = newError)" />
+    <div v-else>
+      <div class="fit row justify-center items-center content-center q-mt-xl">
+        <q-img src="/logo2.png" width="500px" />
+      </div>
+      <div class="absolute-center">
+        <LoginBox
+          :msgError="msgError"
+          @loginEvent="login"
+          @registerEvent="register"
+          @setNewError="(newError) => (msgError = newError)" />
+      </div>
+    </div>
   </q-page>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'src/stores/dbStore';
 import { storeToRefs } from 'pinia';

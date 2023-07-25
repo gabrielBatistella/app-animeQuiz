@@ -1,5 +1,5 @@
 <template>
-  <q-fab color="blue-10" glossy
+  <q-fab color="blue-10"
     icon="menu"
     direction="down"
     vertical-actions-align="right">
@@ -14,7 +14,17 @@
       label="User"
       label-position="left" />
     <q-fab-action color="blue-10" text-color="white"
-      @click="$emit('clickLeaderboards')"
+      @click="$emit('clickSearchAnime')"
+      icon="travel_explore"
+      label="Discover Animes"
+      label-position="left" />
+    <q-fab-action color="blue-10" text-color="white"
+      @click="$emit('clickSearchUser')"
+      icon="person_search"
+      label="Find Users"
+      label-position="left" />
+    <q-fab-action color="blue-10" text-color="white"
+      @click="$emit('clickLeaderboard')"
       icon="leaderboard"
       label="Leaderboard"
       label-position="left" />
@@ -31,7 +41,9 @@
 defineEmits({
   clickMainMenu: null,
   clickUser: null,
-  clickLeaderboards: null,
+  clickSearchAnime: null,
+  clickSearchUser: null,
+  clickLeaderboard: null,
   clickLeave: null,
 });
 

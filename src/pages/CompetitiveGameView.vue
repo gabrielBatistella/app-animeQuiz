@@ -5,11 +5,42 @@
     <span v-else>
       <AlreadyPlayedIcon v-if="alreadyPlayed" />
       <span v-else>
-        <q-img src="logo" class="absolute-top" />
-        <div class="row fit justify-center items-center content-center q-my-xl">
-          <AnswerTextField class="q-my-xl" @attempt="checkAttempt" />
+        <div class="fit row justify-center items-center content-center q-mb-md q-mt-lg">
+          <q-img src="/logo1.png" width="300px" />
+        </div>
+        <div class="fit column wrap justify-center items-center content-center q-my-md">
+          <span>
+            <div class="text-grey text-right q-mb-xs">
+              {{ maxAttempts - attempts.length }} Attempts left
+            </div>
+            <AnswerTextField @attempt="checkAttempt" />
+          </span>
         </div>
         <q-list dense class="q-pt-none">
+          <q-item>
+            <q-item-section>
+              <div class="q-mx-md row content-center" width="auto">
+                <div class="col text-center text-h6" style="height:fit-content;">
+                  Anime name
+                </div>
+                <div class="col text-center text-h6" style="height:fit-content;">
+                  Season
+                </div>
+                <div class="col text-center text-h6" style="height:fit-content;">
+                  Episodes
+                </div>
+                <div class="col text-center text-h6" style="height:fit-content;">
+                  Score
+                </div>
+                <div class="col text-center text-h6" style="height:fit-content;">
+                  Genres
+                </div>
+                <div class="col text-center text-h6" style="height:fit-content;">
+                  Studios
+                </div>
+              </div>
+            </q-item-section>
+          </q-item>
           <q-item v-for="attempt in attempts" :key="attempt.index">
             <q-item-section>
               <AnswerAttempt :animeCorrect="answerAnime" :animeAttempt="attempt.anime" />
@@ -57,7 +88,7 @@ const answerAnime = ref(undefined);
 
 // Attempts data:
 const attempts = ref([]);
-const maxAttempts = 10;
+const maxAttempts = ref(10);
 
 // Store attributes and methods:
 const { user } = storeToRefs(store);
@@ -73,9 +104,8 @@ const {
 } = store;
 
 function fatalError(msg) {
-  error.value = true;
   msgError.value = msg;
-  console.log(`ERROR: ${msg}`);
+  error.value = true;
 }
 
 function playerWon() {
@@ -98,10 +128,7 @@ function playerWon() {
       if (!isDefined) {
         dayIsOver.value = true;
       } else {
-        console.log('AAAAAAAAAAA');
-        console.log(attempts.value.length);
         won.value = true;
-        console.log('BBBBBBBBBBBBB');
 
         const defaultWait = waitTimeout(5000)
           .then(() => {});
@@ -158,13 +185,13 @@ function playerLost() {
 }
 
 function checkAttempt(_anime) {
-  attempts.value.push({
+  attempts.value.unshift({
     index: attempts.value.length,
     anime: _anime,
   });
   if (_anime.mal_id === answerAnime.value.mal_id) {
     playerWon();
-  } else if (attempts.value.length >= maxAttempts) {
+  } else if (attempts.value.length >= maxAttempts.value) {
     playerLost();
   }
 }

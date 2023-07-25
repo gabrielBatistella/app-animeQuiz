@@ -1,5 +1,5 @@
 <template>
-  <q-card class="q-ma-md shadow-24" width="auto">
+  <q-card class="shadow-24" width="auto">
     <q-img :src="background" class="fit">
       <q-carousel class="fit no-padding"
         style="background-color:rgba(0, 255, 255, 0);"
@@ -12,7 +12,7 @@
           <q-img class="fit cursor-pointer q-hoverable"
             @click="$emit('enterGame')"
             v-ripple>
-            <div class="absolute-bottom text-h3 text-center">
+            <div class="absolute-bottom text-h4 text-center">
               {{ title }}
             </div>
           </q-img>
@@ -26,12 +26,12 @@
         <q-carousel-slide name="description" class="fit no-padding">
           <q-img class="fit">
             <div class="fit row wrap justify-center items-center content-center q-px-xl">
-              <div class="absolute-top q-mt-md text-h4 text-center">
+              <div class="absolute-top text-h4 q-mt-md text-center">
                 {{ title }}
               </div>
-              <div class="text-h5 text-center">
+              <div class="text-subtitle2 q-mt-lg text-center">
                 <span v-for="line in descriptionFormatted" :key="line.index">
-                  {{ line.content }}
+                  {{ line.content }} <br>
                 </span>
               </div>
             </div>

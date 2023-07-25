@@ -2,11 +2,19 @@
   <q-page>
     <LoadingIcon v-if="loading" msg="Loading Main Menu..." />
     <span v-else>
-      <GameMode v-for="gameMode in gameModes"
-        :key="gameMode.title"
-        :title="gameMode.title"
-        :description="gameMode.description"
-        @enterGame="router.push(`${gameMode.path}`)" />
+      <div class="fit row wrap justify-center items-center content-center">
+        <q-responsive :ratio="2100/1313" class="col" style="max-width: 620px">
+          <div>
+            <GameMode v-for="gameMode in gameModes"
+              :key="gameMode.title"
+              :title="gameMode.title"
+              :background="gameMode.background"
+              :description="gameMode.description"
+              class="q-ma-md"
+              @enterGame="router.push(`${gameMode.path}`)" />
+          </div>
+        </q-responsive>
+      </div>
     </span>
   </q-page>
 </template>
@@ -34,7 +42,7 @@ const competitiveMode = ref({
               + 'Try to find out the secret anime\'s name in as few attempts as possible '
               + 'and see how your abilities compare against other players on the leaderboard.\n'
               + 'Aim for the #1 spot!',
-  background: '',
+  background: '/competitive.png',
   path: '/play/competitive',
 });
 const casualMode = ref({
@@ -43,7 +51,7 @@ const casualMode = ref({
               + 'Here you can test your skills on the game and train to crush your rivals!\n'
               + 'Your scores won\'t be uploaded to the leaderboard, but you can still see them '
               + 'and compete with your friends.',
-  background: '',
+  background: '/casual.png',
   path: '/play/casual',
 });
 const competitiveClosed = ref({
@@ -51,7 +59,7 @@ const competitiveClosed = ref({
   description: 'You have already played the competitive game of the day.\n'
               + 'If you are curious about how other players are doing in today\'s challenge, '
               + 'you can spy on their outcomes through the page of the Anime.',
-  background: '',
+  background: '/closed.png',
   path: '/anime/', // ID added on init
 });
 const gameModes = computed(() => {

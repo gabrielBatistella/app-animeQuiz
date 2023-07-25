@@ -14,8 +14,6 @@ const {
 } = store;
 
 onMounted(() => {
-  defineAnimeOfTheDay().catch((e) => {
-    console.log(e);
-  });
+  defineAnimeOfTheDay().catch(() => {});
 });
 </script>
