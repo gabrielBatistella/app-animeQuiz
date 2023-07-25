@@ -124,7 +124,7 @@ function updateSearch() {
       currentAnimeList.value = receivedPackege.data;
       currentPage.value = 1;
 
-      if (currentAnimeList.value > 0) {
+      if (currentAnimeList.value.length > 0) {
         showPagination.value = true;
       }
 

@@ -42,7 +42,7 @@ function getRandomRank(maxRank) {
 }
 
 const difficultyLevels = { easy: 200, medium: 1000, hard: 5000 };
-const timeBetweenRequests = 1500; // milliseconds
+const timeBetweenRequests = 1000; // milliseconds
 
 export const useStore = defineStore('dbStore', {
   state: () => ({
