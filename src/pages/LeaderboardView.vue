@@ -44,7 +44,7 @@ function fatalError(msg) {
 function calculateWinPercent(_user) {
   const value = _user.compStats.numWins
                 / (_user.compStats.numWins + _user.compStats.numLosses);
-  return (!Number.isNaN(value)) ? value : '---';
+  return (!Number.isNaN(value)) ? value * 100 : '---';
 }
 
 function calculateMean(_user) {

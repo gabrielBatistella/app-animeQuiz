@@ -94,18 +94,17 @@ const columns = [
   },
 ];
 
-function calculateCompetitiveWinPercent() {
-  return props.userInfo.compStats.numWins
-  / (props.userInfo.compStats.numLosses + props.userInfo.compStats.numWins);
-}
+const competitiveWinPercent = computed(() => {
+  const value = props.userInfo.compStats.numWins
+    / (props.userInfo.compStats.numLosses + props.userInfo.compStats.numWins);
+  return value * 100;
+});
 
-function calculateCasualWinPercent() {
-  return props.userInfo.compStats.numWins
-/ (props.userInfo.compStats.numLosses + props.userInfo.compStats.numWins);
-}
-
-const competitiveWinPercent = computed(calculateCompetitiveWinPercent);
-const casualWinPercent = computed(calculateCasualWinPercent);
+const casualWinPercent = computed(() => {
+  const value = props.userInfo.casStats.numWins
+  / (props.userInfo.casStats.numLosses + props.userInfo.casStats.numWins);
+  return value * 100;
+});
 
 const likedAnimes = computed(() => {
   const likes = [...(props.userInfo.likes)];
@@ -113,21 +112,21 @@ const likedAnimes = computed(() => {
   return likes;
 });
 
-const rows = [
+const rows = computed(() => [
   {
     name: 'Competitive',
     wins: props.userInfo.compStats.numWins,
     losses: props.userInfo.compStats.numLosses,
     attempts: props.userInfo.compStats.numOfAttempts,
-    winPercent: (!Number.isNaN(competitiveWinPercent.value)) ? competitiveWinPercent.value : '---',
+    winPercent: (!Number.isNaN(competitiveWinPercent.value) && Number.isFinite(competitiveWinPercent.value)) ? Math.round(competitiveWinPercent.value * 10) / 10 : '---',
   },
   {
     name: 'Casual',
     wins: props.userInfo.casStats.numWins,
     losses: props.userInfo.casStats.numLosses,
     attempts: props.userInfo.casStats.numOfAttempts,
-    winPercent: (!Number.isNaN(casualWinPercent.value)) ? casualWinPercent.value : '---',
+    winPercent: (!Number.isNaN(casualWinPercent.value) && Number.isFinite(casualWinPercent.value)) ? Math.round(casualWinPercent.value * 10) / 10 : '---',
   },
-];
+]);
 
 </script>

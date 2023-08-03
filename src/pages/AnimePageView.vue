@@ -102,11 +102,11 @@ function receivedAnimeOfTheDay(_animeOfTheDay) {
 
 function onUpdateAnimeInfo(_anime) {
   if (_anime.id === id.value) {
-    receivedAnimeInteractiveData(_anime);
-
     /* eslint-disable-next-line */
     if (_anime.hasOwnProperty('day')) {
       receivedAnimeOfTheDay(_anime);
+    } else {
+      receivedAnimeInteractiveData(_anime);
     }
   }
 }

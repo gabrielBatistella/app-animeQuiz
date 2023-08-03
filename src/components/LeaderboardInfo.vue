@@ -85,7 +85,7 @@ const columns = [
     label: 'Wins (%)',
     align: 'center',
     field: (user) => user.winPercent,
-    format: (val) => `${val}`,
+    format: (val) => `${Math.round(val * 10) / 10}`,
   },
   {
     name: 'mean',
@@ -93,7 +93,7 @@ const columns = [
     label: 'Mean Nº Attempts',
     align: 'center',
     field: (user) => user.mean,
-    format: (val) => `${val}`,
+    format: (val) => `${Math.round(val * 100) / 100}`,
   },
 ];
 

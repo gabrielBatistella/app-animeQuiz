@@ -48,7 +48,7 @@
           </q-item>
         </q-list>
       </span>
-      <WinPopup v-if="won" :numOfAttempts="attempts.length + 1" />
+      <WinPopup v-if="won" :numOfAttempts="attempts.length" />
       <LossPopup v-else-if="lost" />
       <CompetitiveClosedPopup v-else-if="dayIsOver" />
     </span>
