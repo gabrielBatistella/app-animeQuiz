@@ -1,7 +1,7 @@
 # app-animeQuiz
 Trabalho da disciplina SSC0961 Desenvolvimento Web e Mobile
 
-<h1 align="center"> :file_cabinet: Aplicação de um jogo que consiste em descobrir animes </h1>
+<h1 align="center"> :file_cabinet: Aplicação de um jogo de adivinhar animes </h1>
 
 ## :memo: Descrição
 O projeto tem como objetivo implementar uma aplicação multiplataforma (web, desktop e mobile) que faça requisições a uma API e liste, de alguma forma, elementos dessa API, além de utilizar um banco de dados próprio para armazenar dados e modificá-los, de forma sincronizada (no caso de várias pessoas estarem executando a aplicação).
